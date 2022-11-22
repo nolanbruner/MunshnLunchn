@@ -1,0 +1,498 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset='UTF-8'>
+	<title> Munshn Lunshn</title>
+   
+	<style>
+        /* @font-face {
+            font-family: Antique Heritage;
+            src: url("AntiqueHeritage.otf");
+        }
+	 */
+		
+        	div {font-family: Free Serif;}
+            h2{font-family:Antique Heritage;}
+		table {background-color:beige;border:3px solid black;}
+		td{text-align:center}
+		th{text-align:left}
+		span-1 {color:green}
+		span-2 {color:red}
+		span-3{text-align:left}
+		span-4{text-align:center}
+		.results{text-align:left}
+		.inedible{border: 5px solid green}
+		.poisonous{border-top: 5px solid red; border-left:5px solid blue;border-right:5px solid blue; border-bottom:5px solid red;}
+	</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+	<!-- <link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+	integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+	crossorigin="anonymous"> -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <!-- <script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+	integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+	crossorigin="anonymous"></script> -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
+	<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jcanvas/21.0.1/jcanvas.js"
+	crossorigin="anonymous"></script>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+	<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
+	<script>
+		var total = 0;
+		var itemlist = "";
+		function changeb(){
+		document.body.style["background-color"] = "blue";
+		}
+		function makeBlue(elt){
+			elt.style.color = 'blue';
+		};
+		function hoverOn(elt){
+			elt.style["background-color"]= "green";
+			elt.style["color"] = "white";
+		};
+		function hoverOff(elt){
+			elt.style["background-color"]= "";
+			elt.style["color"] = "black";
+		};
+		function easterEgg(){
+			alert("Want to be healthy go to myfitnesspal.com");
+		};
+        
+		function compute(){
+			
+			var val =  document.getElementById('myInput').value;
+			//var myInput = document.getElementById('myInput')
+			// BSModal(id, title, message, callBack = null);
+			var total = document.getElementById('total')
+			// var myModal = new bootstrap.Modal(document.getElementById('myModal'), "31",{})
+			var str = "Bill:"+ val;
+			var str2 = "\n with 15%: "+ (val*1.15).toFixed(2)+
+				"\nwith 18%: $"+(val*1.18).toFixed(2)+
+				"\nwith 20%: $" +(val*1.2).toFixed(2)+
+				"\n with 25%: $"+(val*1.35).toFixed(2);
+   				 var mymodal = $('#myModal');
+   				 mymodal.find('.modal-body').text(str+"\t"+str2);
+   				 mymodal.modal('show');
+
+ 
+		
+        };
+	
+	
+		//var result; // for further manipulation in console
+		
+
+
+const myDBName = 'theDB';
+var myDB; // myDB: IDBDatabase; initialized by initDB()
+const serial = 3; // must be an integer
+	// force an upgrade by incrementing the serial
+//	serial =
+
+initDB('projects');
+
+function initDB(relation) { // relation: name of object store
+	const request = window.indexedDB.open(myDBName, serial);
+		// request: IDBOpenDBRequest
+	request.onerror = function(event) {
+		alert('Error loading database: ' + request.error.message);
+	}; // onerror
+	request.onsuccess = function(event) {
+		console.log('Success loading database.');
+		myDB = event.target.result; // myDB: IDBDatabase
+		myDB.onerror = function(event) {
+		//	alert('error: ' + event.target.error.message);
+		}; // generic onerror
+	}; // onsuccess
+	request.onupgradeneeded = function(event) {
+		console.log('Creating database.');
+		myDB = this.result;
+		myDB.onerror = function(event) {
+			alert('error: ' + event.target.error.message);
+		};
+		const table =
+			myDB.createObjectStore(relation, {keyPath: "key"});
+		// the "projects" table
+		table.createIndex("category", "category", { unique: false });
+		table.createIndex("Item", "Item", { unique: false });
+		table.createIndex("Description", "Description", { unique: false });
+		table.createIndex("Price", "Price", { unique: false });
+		table.createIndex("Count", "Count", { unique: false });
+
+	}; // onupgradeneeded
+	return('initialized');
+}; // initDB
+
+function displayRow(entry) { // entry should be a JSON object
+	
+	//let answer = JSON.stringify(entry,null, ' ');
+	//const res = JSON.parse(answer);
+	item = entry.Item,
+	key = entry.key,
+	
+	category = entry.category,
+
+	description = entry.Description,
+	price = entry.Price.toFixed(2),
+	count = entry.Count,
+	//$("#result").html($("#result").html()+'<tr >'+'<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick = "addToCart("'+item+'","'+price+'")" id = item>' + item+'</td>'+'<td>'+description+'</td>'+'<td id=price>'+'$'+price+'</td>'+'</tr>');
+	$("#result").html($("#result").html()+'<tr>'+'<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick = "addToCart('+"'"+item+"'"+','+price+')" id = item>' + item+'</td>'+'<td>'+description+'</td>'+'<td id=price>'+'$'+price+'</td>'+'</tr>');
+
+	console.log(key);
+	modifyEntry('projects',key,'Count',count+=1);
+	console.log(item+':'+description+':'+price+':'+count);
+	$('#option').html("you clicked "+category+" "+count+" times");
+//	modifyEntry('projects',key,'Count',count+=1);
+}; // displayRow
+
+function displayTable(relation) {
+	const table = myDB.transaction( [relation], "readonly").
+		objectStore(relation); // table: IDBObjectStore 
+	$("#result").html(''); // clear
+	$("#result").html($("#result").html() ) ;
+	table.openCursor().onsuccess = function(event) {
+		const cursor = event.target.result;
+		if (cursor) { // not at end of table
+			displayRow(cursor.value);
+			cursor.continue(); // re-invokes onsuccess
+		} else { // end
+			console.log('end of display for table ' + relation);
+		}
+
+	}; // openCursor
+	$("#result").html($("#result").html() + '</td>') ;
+}; // displayTable
+
+function addEntry(relation, entry) { // entry: JSON object, with key field
+	const table = myDB.transaction([relation], "readwrite").
+		objectStore(relation); // table: IDBObjectStore 
+	const request = table.add(entry);
+	request.onsuccess = function() {
+		console.log('successfully added entry');
+	}; // onsuccess
+}; // addEntry
+
+function addAllEntries(relation, allEntries) { 
+	// allEntries: array of JSON entries
+	allEntries.forEach(function(elt) {
+		addEntry(relation, elt);
+	});
+}; // addAllEntries
+
+function modifyEntry(relation, key, field, value) {
+	const transaction = myDB.transaction([relation], "readwrite");
+	const table = transaction.objectStore(relation);
+	const getRequest = table.get(key); // only one element
+	getRequest.onsuccess = function(event) {
+		var entry = event.target.result;
+		if (entry) {
+			entry[field] = value; // modify
+			const updateRequest = table.put(entry);
+			updateRequest.onsuccess = function(event) {
+				console.log("succeeded in modifying " +
+					relation + "/" + key + ": " + field +
+					"=>" + value);
+			}; // onsuccess
+		} 
+	};
+}; // modifyEntry
+
+function deleteRow(relation, key) {
+	const transaction = myDB.transaction([relation], "readwrite");
+	const table = transaction.objectStore(relation);
+	const request = table.delete(key);
+	request.onsuccess = function () {
+		console.log('removed row ' + key);
+	}; // oncomplete
+	displayTable(relation);
+}; // deleteRow
+
+function getKeyedRow(relation, key) {
+	const transaction = myDB.transaction([relation], "readonly");
+	const table = transaction.objectStore(relation);
+	const request = table.get(key);
+	request.onsuccess = function (event) {
+		displayRow(event.target.result);
+	}; // onsuccess
+}; // deleteRow
+
+function getRow(relation, column, colVal) { // only one row
+	$("#result").html(''); // clear
+	const transaction = myDB.transaction([relation], "readonly");
+	const table = transaction.objectStore(relation);
+	let index;
+	try {
+		index = table.index(column);
+	} catch (error) {
+		alert('failed to get index for ' + column);
+		return;
+	}
+	index.get(colVal).onsuccess = function(event) {
+		// if multiple hits, returns the one with lowest keyPath.
+		displayRow(event.target.result || ['no result']);
+		console.log("success");
+	};
+}; // getRow
+
+// all matching rows
+function getRows(relation, column, value) {
+	$("#result").html(''); // clear
+	const transaction = myDB.transaction([relation], "readonly");
+	const table = transaction.objectStore(relation);
+	let index;
+	try {
+		index = table.index(column);
+	} catch (error) {
+		alert('failed to get index for ' + column);
+		return;
+	}
+	const range = IDBKeyRange.only(value);
+	const answer = [];
+	index.openCursor(range).onsuccess = function(event) {
+		var cursor = event.target.result;
+		if (cursor) {
+			if (cursor.value[column] == value) {
+				displayRow(cursor.value);
+				answer.push(cursor.value);
+			}
+			cursor.continue(); // re-invokes onsuccess
+		} // cursor is not null
+	}; // onsuccess
+	console.log('end of results');
+	return answer;
+}; // getRows
+
+function clearDB(relation) {
+	const transaction = myDB.transaction( [relation], "readwrite");
+	const table = transaction.objectStore(relation);
+	const request = table.clear();
+	request.onsuccess = function (){
+		console.log("table " + relation + " cleared.");
+	}; // onsuccess
+	displayTable(relation);
+}; // clearDB
+
+function deleteDB(relation) {
+	if (myDB) {
+		myDB.close();
+		myDB = null;
+	};
+	window.indexedDB.deleteDatabase(myDBName);
+	console.log('Database deleted');
+}; // deleteDB
+const entries = [ // for initialization
+	// key must be unique; it is the "keyPath"
+	{key: 0, category: 'snacks', Item: 'Olive Hash', Description: " mashed olives in gravy", Price: 2.50,Count: 0},
+	{key: 1, category: 'snacks', Item: 'smarties', Description: "small savory bites", Price: 1.00,Count: 0},
+	{key: 2, category: 'snacks', Item: 'clumpers', Description: "chocolate-covered raisins", Price: 1.50,Count: 0},
+	{key: 3, category: 'drinks', Item: 'smoothie', Description: "peach and frog flavored", Price: 5.54,Count:0},
+	{key: 4, category: 'drinks', Item: 'milk', Description: "fresh from our cow", Price: 2.50,Count: 0},
+	{key: 5, category: 'drinks', Item: 'water', Description: "guaranteed mostly pure", Price: 0.50,Count: 0},
+	{key: 6, category: 'mains', Item: 'steaks', Description: "primal rib", Price: 20.50,Count: 0},
+	{key: 7, category: 'mains', Item: 'fish', Description: "whatever we found at the market", Price: 25.00,Count: 0},
+	{key: 8, category: 'mains', Item: 'mac-n-cheese', Description: "always a winner!", Price: 15.00,Count: 0},
+	{key: 9, category: 'desserts', Item: 'ice cream', Description: "durian or avocado", Price: 5.00,Count: 0},
+	{key: 10, category: 'desserts', Item: 'shave ice', Description: "durian or avocado", Price: 3.20,Count: 0},
+	{key: 10, category: 'desserts', Item: 'cake', Description: "dark forest", Price: 4.00,Count: 0},
+	{key: 11, category: 'for kids', Item: 'mac-n-cheese', Description: "always a winner!", Price: 5.00,Count: 0},
+	{key: 12, category: 'for kids', Item: 'small fry', Description: "most likely some fish", Price: 5.00,Count: 0},
+	{key: 13, category: 'takeout', Item: 'empty box', Description: "recyclable", Price: 0.30,Count: 0},
+	{key: 14, category: 'takeout', Item: 'pizza slice', Description: "vegan, white", Price: 1.00,Count: 0},
+	{key: 15, category: 'takeout', Item: 'ice cream cone', Description: "durian or avocado", Price: 5.00,Count: 0},
+	{key: 16, category: 'inedible', Item: 'beer stein', Description: "glass", Price: 3.00,Count: 0},
+	{key: 17, category: 'inedible', Item: 'can holder', Description: "rubber", Price: 2.00,Count: 0},
+	{key: 18, category: 'inedible', Item: 'napkins', Description: "50,recycled", Price: 1.00,Count: 0},
+	{key: 19, category: 'poisonous', Item: 'table cleaner', Description: "bottled", Price: 10.50,Count: 0},
+
+
+];
+function spinLayer(layer) {
+	$(this).animateLayer(layer, {
+		rotate: '+=720',
+	}, 1000);
+}; // spinLayer
+
+function moveLayer(layer) {
+	$(this).animateLayer(layer, {
+		x: '-=50',
+	}, 100); // 0.1 second
+}; // moveLayer
+function showLogo(region){
+		region.drawArc({
+		fillStyle: 'blue',
+		x: 120, y: 130,
+		radius: 20,
+	}).drawText({
+		fillStyle: 'white',
+		strokeStyle: 'darkred',
+		strokewidth: 1,
+		x:110, y:100,
+		fontSize: 35,
+		fontFamily: 'Antique Heritage',
+		text: 'ML',
+	}).drawRect({
+		layer: true,
+		fillStyle: 'purple',
+		x: 120, y: 190,
+		width: 100, height: 100,
+		click: moveLayer,
+	}).drawEllipse({
+		layer: true,
+		fillStyle: 'white',
+		strokeStyle: 'black',
+		x: 120, y: 200,
+		width: 50, height: 100,
+		mouseover: function(layer) {
+			$(this).animateLayer(layer, {
+				fillStyle: 'blue',
+				rotate: '+=720',
+			}); // default time: 0.4 seconds
+		}, // mouseover
+	});
+};
+function addToCart(item,price){
+
+console.log(item,price);
+ itemlist = itemlist+item+":"+price+";";
+ total = total + price;
+console.log(total);
+document.getElementById('myInput').value = total.toFixed(2);
+// document.getElementById('#total') = total;
+// document.getElementById('#cart') = itemlist;
+}
+function load(){
+	clearDB('projects');
+	initDB('projects');
+	addAllEntries('projects',entries);
+	showLogo($('#myCanvas2'));
+//	const result = JSON.parse(entries);
+//				//console.log(result);
+//				category = result.category;
+//				details = result.details;
+//				console.log(category);
+}
+
+function clear(){
+	total = 0;
+	document.getElementById('myInput').value = total.toFixed(2);
+	load();
+}
+	</script>
+</head>
+<body style = "margin:20px" onload="load()">
+
+<div class = "container-fluid">
+	<div class = "row">
+		<div class="col-sm-4 offset-sm-4" style = "text-align: center;">
+			<canvas id='myCanvas2' width="300" height="300">
+			</canvas>
+				<h1> Welcome to the High Times Munshn Lunshn&#x2122;!</h1>
+	<p> All our clients are served right! 
+	<br><mark> This web site is under construction, as is our cafe </mark></p>
+	<h2>See the Menu</h2>
+	
+	<table style = "width: 100%;">
+	
+		<tr> 
+		<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick = "getRows('projects','category', 'snacks');" >snacks </td><td>&#x1f34e;</td>
+		<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick = "getRows('projects','category', 'drinks');"> drinks </td><td>&#x1f378;</td>
+		<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick = "getRows('projects','category', 'mains');"> mains </td><td><span-4>&#x1f357;</td>
+		</tr>
+		<tr> 
+		<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick ="getRows('projects','category', 'desserts');"> desserts</td><td>&#x1f382;</td>
+		<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick = "getRows('projects','category', 'for kids');"> for kids</td><td>&#x1f37c;</td>
+		<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)"  onclick = "getRows('projects','category', 'for pets');"> for pets</td><td> &#x1f415;</td>
+		</tr>
+		<tr> 
+		<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick = "getRows('projects','category', 'takeout');">takeout </td><td>&#x1f355;</td>
+		<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick = "getRows('projects','category', 'inedible');" class = "inedible"> inedible</td><td>&#x1f388;</td>
+		<td onmouseover = "hoverOn(this)" onmouseleave = "hoverOff(this)" onclick = "getRows('projects','category', 'poisonous');" class = "poisonous"> poisonous </td><td>&#x2620;</td>
+		</tr>
+	</span-4>
+	</table>
+	<div id =  cart>
+
+
+	</div>
+
+	<div id = total>
+	</div>
+
+	<div id = option>  </div>
+	
+	<br>
+		<div>Add items to cart</div>
+		<table id = "result" style = "width:100%">
+			
+		</table>
+
+    
+
+	<!--<input type = int id = bill></input> -->
+	
+		<div row>
+	<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+		Check price
+	  </button>
+	  <button type = "button" class = "btn btn-primary" onmousedown=clear()>Clear</button>
+			<!-- <input type = float name ="total"><input type = submit value = calculate class = "btn btn-info btn-sm"> -->
+		  <!--<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>-->
+		  <div class="collapse" id="collapseExample">
+			<div class="card card-body">
+				<input type = float name ="total" id = myInput><button class = "btn btn-info btn-sm" onclick=compute()>Calculate</button>
+			</div>
+		  </div>
+		  </div>
+	<!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">  Open Bill</button>  -->
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Thanks, Come again!</h4>
+      </div>
+      <div class="modal-body" >
+	 		<div id = billBody></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+	</div>
+	</div>
+	<div id = billed></div>
+	<h2 style = "padding:20px" > We are hiring  </h2>
+	<p> we are looking for employees who are </p>
+	<ol>
+	<li>Reliable</li>
+	<li>Prompt </li>
+	<li>Friendly
+		<ul>
+			<li>Able to deal with <i>obnoxious customers </i></li>
+			<li>Able to deal with <i>critical managers</i></li>
+			<li>Able to carer to <i>the chef's whims</i></li>
+	
+		</ul>
+	</li>
+	<li><span-1>Multi</span-1><span-2>lingual</span-2></li>
+	<li onmousedown = "easterEgg()"><b>Healthy</b></li>
+	</ol>
+	</div>
+</div>
+</div>
+
+	
+
+</body>
+</html>
